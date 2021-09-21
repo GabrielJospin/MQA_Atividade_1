@@ -3,6 +3,13 @@ mode <- function(v) {
    uniqv[which.max(tabulate(match(v, uniqv)))]
 }
 
+hist_logy <- function(x, breaks = "Sturges", plot = TRUE, ...){
+  h <- hist(x, breaks = breaks, plot = FALSE)
+  is.na(h$counts) <- h$count == 0
+  if(plot) barplot(setNames(h$counts, h$mids), log = "y", space = 0, ...)
+  invisible(h)
+}
+
 data <- read.csv("./Database/gratuitos.csv")
 
 print("gratuitos: ")
@@ -24,8 +31,8 @@ print(sprintf("Inscrição: media: %.3f, mediana: %.3f, moda: %.3f, Quartis{ %.3
               mediaInscritos, medianaInscritos, modaInscritos, Q1Inscritos, Q2Inscritos, Q3Inscritos ))
 print(sprintf("Variância: %.3f, desvio padrão:%.3f , coeficiente de variação: %.3f",
               varInscritos, dpInscritos, cfInscritos))
-hist(data$numInscritos)
-boxplot(data$numInscritos)
+hist_logy(data$numInscritos, main="Quantidade de inscritos")
+boxplot(data$numInscritos, main="Quantidade de Inscritos")
 
 
 
@@ -44,8 +51,8 @@ print(sprintf("Avaliação: media: %.3f, mediana: %.3f, moda: %.3f, Quartis{ %.3
               mediaAvaliacao, medianaAvaliacao, modaAvaliacao, Q1Avaliacao, Q2Avaliacao, Q3Avaliacao ))
 print(sprintf("Variância: %.3f, desvio padrão:%.3f , coeficiente de variação: %.3f",
               varAvaliacao, dpAvaliacao, cfAvaliacao))
-hist(data$avaliacao)
-boxplot(data$avaliacao)
+hist(data$avaliacao, xlab = c(0,5), main = "Avaliação do curso")
+boxplot(data$avaliacao, main="Avaliação do curso")
 
 #Criticas
 mediaCriticas <- mean(data$numCriticas)
@@ -61,15 +68,15 @@ print(sprintf("Críticas: media: %.3f, mediana: %.3f, moda: %.3f, Quartis{ %.3f,
               mediaCriticas, medianaCriticas, modaCriticas, Q1Criticas, Q2Criticas, Q3Criticas))
 print(sprintf("Variância: %.3f, desvio padrão:%.3f , coeficiente de variação: %.3f",
               varCriticas, dpCriticas, cfCrticas))
-hist(data$numCriticas)
-boxplot(data$numCriticas)
+hist_logy(data$numCriticas, main="Quantidade de Críticas")
+boxplot(data$numCriticas, main="Quantidade de Críticas")
 
 #avaliando x na fdp
-normalCriticas<- dnorm(data$numCriticas, mediaCriticas, sd = 1)
-normalInscritos<- dnorm(data$numInscritos, mediaInscritos, sd = varInscritos)
-normalAvaliacao<- dnorm(data$avaliacao, mediaAvaliacao, sd = varAvaliacao)
+normalCriticas<- dnorm(data$numCriticas, sd = dpCriticas, mean=mediaCriticas)
+normalInscritos<- dnorm(data$numInscrito, sd = dpInscritos, mean = mediaInscritos)
+normalAvaliacao<- dnorm(data$avaliacao, sd = dpAvaliacao, mean = mediaAvaliacao)
 
 #plot a fdp
-plot(data$numCriticas,normalCriticas,type = "l", ylab = "densidade", xlab = "criticas")
-plot(data$numInscritos,normalInscritos,type = "l", ylab = "densidade", xlab = "Inscritos")
-plot(data$avaliacao,normalAvaliacao,type = "l", ylab = "densidade", xlab = "Avaliação")
+plot(data$numCriticas,normalCriticas,type = "l", ylab = "densidade", xlab = "criticas", main="Grafico normalizado de Críticas" )
+plot(data$numInscritos,normalInscritos,type = "l", ylab = "densidade", xlab = "Inscritos", main="Grafico normalizado de Inscritos")
+plot(data$avaliacao,normalAvaliacao,xlim = c(0,5) ,type = "l", ylab = "densidade", main="Grafico normalizado de Avaliação")
